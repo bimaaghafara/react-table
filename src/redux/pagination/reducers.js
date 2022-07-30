@@ -7,7 +7,7 @@ const initialState = {
 
 export const paginationReducer = (state = initialState, action) => {
   switch (action.type) {
-    case PAGINATION.SET_PAGINATION:
+    case PAGINATION.SET:
       return { ...state, ...action.payload }
     default:
       return state;
