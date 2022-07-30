@@ -2,3 +2,8 @@ export const FILTERS = {
   SET: "SET_FILTERS",
   RESET: "RESET_FILTERS"
 }
+
+export const TABLE = {
+  SET_ROWS: "SET_ROWS",
+  SET_PAGINATIONS: "SET_PAGINATIONS",
+}

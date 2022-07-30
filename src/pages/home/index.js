@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, Box, Typography, TextField, MenuItem } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { setFilters, resetFilters } from '../../redux/actions';
+import { setFilters, resetFilters, setRows, setPaginations } from '../../redux/actions';
 import { useDispatch, useSelector } from "react-redux";
 import { useDebounce } from "../../hooks/useDebounce";
 import axios from 'axios';
@@ -9,10 +9,10 @@ import sx from './sx';
 
 export default function Home() {
   const dispatch = useDispatch();
-  const filtersState = useSelector((state) => state.FiltersReducer);
+  const filtersState = useSelector((state) => state.filtersReducer);
+  const { rows, paginations } = useSelector((state) => state.tableReducer);
   const filtersStateDebounced = useDebounce(filtersState, 500);
   const [loading, setLoading] = useState(false);
-  const [rows, setRows] = useState([]);
 
   const getFiltersValue = () => {
     const _filters = {
@@ -28,21 +28,40 @@ export default function Home() {
     return params;
   }
 
+  const getPaginationsValue = () => {
+    return Object.keys(paginations)
+      .map(key => {
+        if (key === 'rowCount') return '';
+        if (key === 'page') return `${key}=${Number(paginations[key])+1}`;
+        if (key === 'pageSize') return `results=${paginations[key]}`;
+        return `${key}=${paginations[key]}`;
+      })
+      .filter(e => e)
+      .join('&');
+  }
+
   useEffect(() => {
     setLoading(true);
-    let url = `https://randomuser.me/api/?${getFiltersValue()}&page=1&pageSize=10&results=10`;
+    let url = `https://randomuser.me/api/?${getFiltersValue()}&${getPaginationsValue()}`;
     axios.get(url)
       .then(res => {
         setLoading(false);
-        setRows(res.data.results.map((e, i) => ({
-          ...e, id: [i, e.id.value, e.id.value].join('_')
-        })));
+        const _rows = res.data.results.map((e, i) => ({
+          ...e,
+          no: i+1,
+          id: [i, e.id.value, e.id.value].join('_')
+        }));
+        dispatch(setRows(_rows))
+        dispatch(setPaginations({
+          ...paginations,
+          rowCount: 999
+        }))
       })
       .catch(err => {
         setLoading(false);
         console.log(err);
       })
-  }, [filtersStateDebounced]);
+  }, [filtersStateDebounced, paginations.pageSize, paginations.page]);
   
   const renderTableFilters = () => {
     const genders = [
@@ -94,6 +113,11 @@ export default function Home() {
   const renderTable = () => {
     const columns = [
       {
+        width: 50,
+        field: "no",
+        headerName: "No.",
+      },
+      {
         width: 150,
         field: "username",
         headerName: "Username",
@@ -134,12 +158,12 @@ export default function Home() {
           sortingMode="server"
           onSortModelChange={(e, details) => console.log(e, details)}
           paginationMode="server"
-          page={0}
-          pageSize={10}
+          page={paginations.page}
+          pageSize={paginations.pageSize}
           rowsPerPageOptions={[10, 25, 50, 100]}
-          rowCount={999}
-          onPageChange={(e) => console.log(e)}
-          onPageSizeChange={(e) => console.log(e)}
+          rowCount={paginations.rowCount}
+          onPageChange={(e) => dispatch(setPaginations({ page: e }))}
+          onPageSizeChange={(e) => dispatch(setPaginations({ pageSize: e }))}
         />
       </Box>
     );
