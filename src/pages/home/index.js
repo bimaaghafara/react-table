@@ -3,6 +3,7 @@ import { Button, Box, Typography, TextField, MenuItem } from "@mui/material";
 import { setFilters, resetFilters } from '../../redux/actions';
 import { useDispatch, useSelector } from "react-redux";
 import { useDebounce } from "../../hooks/useDebounce";
+import axios from 'axios';
 import sx from './sx';
 
 export default function Home() {
@@ -11,7 +12,10 @@ export default function Home() {
   const filtersStateDebounced = useDebounce(filtersState, 500);
 
   useEffect(() => {
-    console.log(filtersState)
+    const url = 'https://randomuser.me/api/?page=1&pageSize=10&results=10'
+    axios.get(url)
+      .then(res => console.log(res.data))
+      .catch(err => console.log(err))
   }, [filtersStateDebounced]);
   
   const renderTableFilters = () => {
