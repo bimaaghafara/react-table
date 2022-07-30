@@ -14,14 +14,28 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
 
+  const getFiltersValue = () => {
+    const _filters = {
+      ...filtersState,
+      gender: filtersState.gender === 'all' ? '' : filtersState.gender
+    }
+    const params = Object.keys(_filters)
+      .map(key => {
+        return _filters[key] ? `${key}=${_filters[key]}` : ''
+      })
+      .filter(e => e)
+      .join('&');
+    return params;
+  }
+
   useEffect(() => {
     setLoading(true);
-    const url = 'https://randomuser.me/api/?page=1&pageSize=10&results=10';
+    let url = `https://randomuser.me/api/?${getFiltersValue()}&page=1&pageSize=10&results=10`;
     axios.get(url)
       .then(res => {
         setLoading(false);
-        setRows(res.data.results.map(e => ({
-          ...e, id: [e.id.value, e.id.value].join('_')
+        setRows(res.data.results.map((e, i) => ({
+          ...e, id: [i, e.id.value, e.id.value].join('_')
         })));
       })
       .catch(err => {
