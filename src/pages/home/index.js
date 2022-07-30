@@ -163,7 +163,7 @@ export default function Home() {
           rowsPerPageOptions={[10, 25, 50, 100]}
           rowCount={paginations.rowCount}
           onPageChange={(e) => dispatch(setPaginations({ page: e }))}
-          onPageSizeChange={(e) => dispatch(setPaginations({ pageSize: e }))}
+          onPageSizeChange={(e) => dispatch(setPaginations({ page: 0, pageSize: e }))}
         />
       </Box>
     );
