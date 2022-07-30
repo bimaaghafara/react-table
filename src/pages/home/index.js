@@ -4,6 +4,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { setFilters, resetFilters } from '../../redux/filters/actions';
 import { setPagination } from '../../redux/pagination/actions';
 import { setRows } from '../../redux/table/actions';
+import { setSort } from '../../redux/sort/actions';
 import { useDispatch, useSelector } from "react-redux";
 import { useDebounce } from "../../hooks/useDebounce";
 import axios from 'axios';
@@ -14,8 +15,18 @@ export default function Home() {
   const filtersState = useSelector((state) => state.filtersReducer);
   const { rows, rowCount } = useSelector((state) => state.tableReducer);
   const paginationState = useSelector((state) => state.paginationReducer);
+  const sortState = useSelector((state) => state.sortReducer);
   const filtersStateDebounced = useDebounce(filtersState, 500);
   const [loading, setLoading] = useState(false);
+
+  const getSortValue = () => {
+    if (sortState.key && sortState.value) {
+      const sortKey = ['sortKey', sortState.key].join('=');
+      const sortValue = ['sortValue', sortState.value].join('=');
+      return [sortKey, sortValue].join('&')
+    }
+    return '';
+  }
 
   const getFiltersValue = () => {
     const _filters = {
@@ -45,7 +56,7 @@ export default function Home() {
 
   const handleGetData = () => {
     setLoading(true);
-    const urlParams = [getFiltersValue(), getPaginationsValue()].filter(e => e).join('&');
+    const urlParams = [getFiltersValue(), getPaginationsValue(), getSortValue()].filter(e => e).join('&');
     const url = `https://randomuser.me/api/?${urlParams}`;
     axios.get(url)
       .then(res => {
@@ -69,7 +80,7 @@ export default function Home() {
     } else {
       dispatch(setPagination({ page: 0 }))
     }
-  }, [filtersStateDebounced]);
+  }, [filtersStateDebounced, sortState]);
 
   useEffect(() => {
     handleGetData();
@@ -168,7 +179,8 @@ export default function Home() {
           disableSelectionOnClick
           disableColumnMenu
           sortingMode="server"
-          onSortModelChange={(e, details) => console.log(e, details)}
+          sortingOrder={['asc', 'desc']}
+          onSortModelChange={(e) => dispatch(setSort({ key: e[0].field, value: e[0].sort }))}
           paginationMode="server"
           page={paginationState.page}
           pageSize={paginationState.pageSize}
