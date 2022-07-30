@@ -40,9 +40,9 @@ export default function Home() {
       .join('&');
   }
 
-  useEffect(() => {
-    setLoading(true);
-    let url = `https://randomuser.me/api/?${getFiltersValue()}&${getPaginationsValue()}`;
+  const handleGetData = () => {
+    const urlParams = [getFiltersValue(), getPaginationsValue()].filter(e => e).join('&');
+    const url = `https://randomuser.me/api/?${urlParams}`;
     axios.get(url)
       .then(res => {
         setLoading(false);
@@ -61,7 +61,19 @@ export default function Home() {
         setLoading(false);
         console.log(err);
       })
-  }, [filtersStateDebounced, paginations.pageSize, paginations.page]);
+  }
+
+  useEffect(() => {
+    if (paginations.page === 0) {
+      handleGetData();
+    } else {
+      dispatch(setPaginations({ page: 0 }))
+    }
+  }, [filtersStateDebounced]);
+
+  useEffect(() => {
+    handleGetData();
+  }, [paginations.pageSize, paginations.page]);
   
   const renderTableFilters = () => {
     const genders = [
