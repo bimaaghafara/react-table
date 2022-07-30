@@ -2,15 +2,17 @@ import { useEffect } from "react";
 import { Button, Box, Typography, TextField, MenuItem } from "@mui/material";
 import { setFilters, resetFilters } from '../../redux/actions';
 import { useDispatch, useSelector } from "react-redux";
+import { useDebounce } from "../../hooks/useDebounce";
 import sx from './sx';
 
 export default function Home() {
   const dispatch = useDispatch();
   const filtersState = useSelector((state) => state.FiltersReducer);
+  const filtersStateDebounced = useDebounce(filtersState, 500);
 
   useEffect(() => {
     console.log(filtersState)
-  }, [filtersState]);
+  }, [filtersStateDebounced]);
   
   const renderTableFilters = () => {
     const genders = [
