@@ -6,7 +6,7 @@ const sx = {
     marginTop: '16px'
   },
   filter: {
-    width: '275px',
+    width: '240px',
     marginTop: '12px',
     marginRight: '12px'
   }

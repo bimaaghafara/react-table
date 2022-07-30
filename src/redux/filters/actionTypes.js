@@ -1,0 +1,4 @@
+export const FILTERS = {
+  SET: "SET_FILTERS",
+  RESET: "RESET_FILTERS"
+}

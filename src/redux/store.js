@@ -1,5 +1,5 @@
 import { createStore, compose } from "redux";
-import rootReducer from "./reducers";
+import rootReducer from "./rootReducers";
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
